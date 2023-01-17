@@ -13,6 +13,7 @@ from discord import app_commands as commands
 from crud import BotConnector
 
 logging.basicConfig(level=logging.INFO)
+
 class BonkBot(Bot):
     def __init__(self):
         intents = discord.Intents.all()
@@ -32,7 +33,7 @@ class BonkBot(Bot):
         self.database = BotConnector(os.getenv("DB_HOST"),
                                      os.getenv("DB_USER"),
                                      os.getenv("DB_PASS"),
-                                     os.getenv("DB_NAME"), use_ssh=True)
+                                     os.getenv("DB_NAME"), use_ssh=False)
 
     @staticmethod
     def _fetch_bonks() -> list[str]:
@@ -52,6 +53,7 @@ class BonkCog(Cog):
     def __init__(self, bot):
         self.bot: BonkBot = bot
         self.resync_tree.start()
+        self.truncate_bonk_cache.start()
 
     @loop(seconds=60)
     async def truncate_bonk_cache(self):
@@ -65,6 +67,10 @@ class BonkCog(Cog):
 
     @resync_tree.before_loop
     async def before_resync_tree(self):
+        await self.bot.wait_until_ready()
+
+    @truncate_bonk_cache.before_loop
+    async def before_truncate_bonk_cache(self):
         await self.bot.wait_until_ready()
 
     def _generate_embed(self, bonker: discord.Member, bonked: discord.Member):

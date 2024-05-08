@@ -3,6 +3,9 @@ import pydantic
 import datetime
 from typing import Type, Union
 
+"""
+Database initalization present in 001_init.sql file
+"""
 
 class Bonk(pydantic.BaseModel):
     creation: datetime.datetime
@@ -31,19 +34,27 @@ class BotConnector:
                                            user=user,
                                            password=password,
                                            database=database)
-        self.cursor = self.connection.cursor()
 
     def insert_new_bonk(self, bonker, bonked):
-        self.cursor.execute("INSERT INTO bonking_data.last_bonks(bonker, bonked) VALUES (%s, %s)", (bonker, bonked))
-        self.connection.commit()
+        with self.connection.cursor() as cursor:
+            cursor.execute("INSERT INTO last_bonks(bonker, bonked) VALUES ('%s', '%s')", (bonker, bonked))
+            self.connection.commit()
 
     def get_all_bonks_by_user_bonked(self, bonked):
-        self.cursor.execute("SELECT * FROM bonking_data.last_bonks WHERE bonked = %s", (bonked,))
-        return [from_tuple(Bonk, record) for record in self.cursor.fetchall()]
+        with self.connection.cursor() as cursor:
+            cursor.execute("SELECT * FROM last_bonks WHERE bonked = '%s'", (bonked,))
+            return [from_tuple(Bonk, record) for record in cursor.fetchall()]
 
-    def delete_all_bonks_before_date(self, date: datetime.datetime):
-        self.cursor.execute("DELETE FROM bonking_data.last_bonks WHERE last_bonks.creation < %s", (date,))
-        self.connection.commit()
+    def delete_all_bonks_before_date(self, date: datetime.datetime) -> int:
+        with self.connection.cursor() as cursor:
+            cursor.execute("DELETE FROM last_bonks WHERE last_bonks.creation < %s", (date,))
+            self.connection.commit()
+            return cursor.rowcount
+
+    def delete_all_bonks_by_user_bonked(self, bonked):
+        with self.connection.cursor() as cursor:
+            cursor.execute("DELETE FROM last_bonks WHERE bonked = '%s'", (bonked,))
+            self.connection.commit()
 
     def close(self):
         if self._use_ssh:

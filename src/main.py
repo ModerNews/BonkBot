@@ -13,7 +13,7 @@ from discord.ext.tasks import loop
 from discord import app_commands as commands
 
 from crud import BotConnector
-from games import Waifu_Cog, Game_Cog
+# from games import Waifu_Cog, Game_Cog
 
 logging.basicConfig(level=logging.INFO)
 

@@ -8,9 +8,13 @@ pipeline {
       }
     }
 
-    stage('Build Docker Image') {
+    stage('Build Docker Image && Create containers') {
       steps {
-        sh 'docker compose create' 
+        withCredentials([string(credentialsId:'Discord_Mash',variable:'DISCORD_TOKEN')]){
+          sh 'docker compose config'
+          sh 'docker compose build'
+          sh 'docker compose create' 
+        }
       }
     }
 

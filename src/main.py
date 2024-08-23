@@ -15,9 +15,6 @@ from discord import app_commands as commands
 from crud import BotConnector
 # from games import Waifu_Cog, Game_Cog
 
-logging.basicConfig(level=logging.INFO)
-
-
 class BonkBot(Bot):
     def __init__(self):
         intents = discord.Intents.all()
@@ -26,6 +23,14 @@ class BonkBot(Bot):
         self.bonks: list[str] = self._fetch_bonks()
         self.database: None | BotConnector = None
         self.base_color = discord.Color(0xfc8cac)
+
+    # def setup_logging(self):
+    #     handler = logging.StreamHandler()
+    #
+    #     dt_fmt = '%Y-%m-%d %H:%M:%S'
+    #     formatter = logging.Formatter('[{asctime}] [{levelname:<8}] {name}: {message}', dt_fmt, style='{')
+    #     handler.setFormatter(formatter)
+    #     discord.utils.setup_logging(handler=handler, level=logging.INFO)
 
     async def setup_hook(self) -> None:
         await self.add_cog(BonkCog(self))
@@ -38,7 +43,7 @@ class BonkBot(Bot):
         self.database = BotConnector(os.getenv("DB_HOST"),
                                      os.getenv("DB_USER"),
                                      os.getenv("DB_PASS"),
-                                     os.getenv("DB_NAME"), use_ssh=False)
+                                     os.getenv("DB_NAME"))
 
     @staticmethod
     def _fetch_bonks() -> list[str]:

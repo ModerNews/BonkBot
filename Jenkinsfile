@@ -10,21 +10,20 @@ pipeline {
 
     stage('Build Docker Image && Create containers') {
       steps {
-        withCredentials([string(credentialsId:'Discord_Mash',variable:'DISCORD_TOKEN')]){
-          sh 'docker compose config'
-          sh 'docker compose build'
-          sh 'docker compose create' 
+        withCredentials([
+          string(credentialsId:'Gruzin-docker_registry_access', usernameVariable: 'GITEA_USER', passwordVariable: 'GITEA_TOKEN')]){
+          sh 'docker login git gruzin.host -u $GITEA_USER -p $GITEA_PASSWORD'
+          sh 'docker build -t gruzin.host/Gruzin/bonk-bot:latest'
         }
       }
     }
 
-    stage('Run Docker Image') {
+    stage('Publish Docker Image') {
       steps {
-        withCredentials([string(credentialsId:'Discord_Mash',variable:'DISCORD_TOKEN')]){
-          sh 'docker compose up -d'
-        }
+          sh 'docker push gruzin.host/Gruzin/bonk-bot:latest'
       }
     }
   }
 }
+
 

@@ -8,9 +8,6 @@ services:
       - DB_HOST=db
       - DB_USER=postgres
       - DB_PASS=postgres
-      - DB_NAME=bonking_data
-    volumes:
-      - ./src:/app
     restart: always
     depends_on:
       - db
@@ -20,12 +17,4 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=bonking_data
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-      - ./001_init.sql:/docker-entrypoint-initdb.d/001_init.sql
     restart: always
-
-volumes:
-  pgdata:
-
